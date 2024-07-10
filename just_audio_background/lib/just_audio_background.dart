@@ -162,6 +162,7 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
   final eventController = StreamController<PlaybackEventMessage>.broadcast();
   final playerDataController = StreamController<PlayerDataMessage>.broadcast();
   final waveController = StreamController<VisualizerWaveformCaptureMessage>.broadcast();
+  final ftfController = StreamController<VisualizerFftCaptureMessage>.broadcast();
   bool? _playing;
   IcyMetadataMessage? _icyMetadata;
   int? _androidAudioSessionId;
@@ -237,6 +238,10 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
   @override
   Stream<VisualizerWaveformCaptureMessage> get visualizerWaveformStream => 
       waveController.stream;
+
+  @override
+  Stream<VisualizerFftCaptureMessage> get visualizerFftStream =>
+      ftfController.stream;
 
   @override
   Future<LoadResponse> load(LoadRequest request) =>
