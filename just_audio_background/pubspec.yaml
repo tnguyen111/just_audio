@@ -12,11 +12,7 @@ dependencies:
   just_audio_platform_interface: ^4.3.0
   # just_audio_platform_interface:
   #   path: ../just_audio_platform_interface
-  audio_service:
-      git:
-      #      url: https://github.com/tnguyen111/audio_service
-      url: https://github.com/tnguyen111/audio_service
-      path: audio_service
+  audio_service: ^0.18.13
   audio_session: ^0.1.14
   flutter:
     sdk: flutter
