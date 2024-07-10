@@ -161,7 +161,7 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
   final InitRequest initRequest;
   final eventController = StreamController<PlaybackEventMessage>.broadcast();
   final playerDataController = StreamController<PlayerDataMessage>.broadcast();
-  final waveController = StreamController<VisualizerWaveformCapture>.broadcast();
+  final waveController = StreamController<VisualizerWaveformCaptureMessage>.broadcast();
   bool? _playing;
   IcyMetadataMessage? _icyMetadata;
   int? _androidAudioSessionId;
