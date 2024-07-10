@@ -235,7 +235,7 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
       playerDataController.stream;
 
   @override
-  Stream<VisualizerWaveformCapture> get visualizerWaveformStream => 
+  Stream<VisualizerWaveformCaptureMessage> get visualizerWaveformStream => 
       waveController.stream;
 
   @override
