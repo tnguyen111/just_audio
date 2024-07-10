@@ -258,16 +258,6 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
     await _audioHandler.pause();
     return PauseResponse();
   }
-
-  @override
-  Future<void> startVisualizer(StartVisualizerRequest request) async{
-    await (await _player).startVisualizer();
-  }
-
-  @override
-  Future<void> stopVisualizer(StopVisualizerRequest request) async{
-    await (await _player).stopVisualizer();
-  }
   
   @override
   Future<SetVolumeResponse> setVolume(SetVolumeRequest request) =>
@@ -695,7 +685,17 @@ class _PlayerAudioHandler extends BaseAudioHandler
     _broadcastState();
     await (await _player).pause(PauseRequest());
   }
+  
+  @override
+  Future<void> startVisualizer(StartVisualizerRequest request) async{
+    await (await _player).startVisualizer();
+  }
 
+  @override
+  Future<void> stopVisualizer(StopVisualizerRequest request) async{
+    await (await _player).stopVisualizer();
+  }
+  
   void _updatePosition() {
     _justAudioEvent = _justAudioEvent.copyWith(
       updatePosition: currentPosition,
