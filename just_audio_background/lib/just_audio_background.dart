@@ -486,13 +486,6 @@ class _PlayerAudioHandler extends BaseAudioHandler
         });
   }
 
-      player.visualizerWaveformStream.listen((event) {
-      _visualizerWaveformStreamController.add(event);
-    });
-
-    player.visualizerFftStream.listen((event) {
-      _visualizerFftStreamController.add(event);
-    });
   
   @override
   Future<void> updateQueue(List<MediaItem> queue) async {
