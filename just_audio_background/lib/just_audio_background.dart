@@ -688,12 +688,12 @@ class _PlayerAudioHandler extends BaseAudioHandler
   
   @override
   Future<void> startVisualizer(StartVisualizerRequest request) async{
-    await (await _player).startVisualizer();
+    await (await _player).startVisualizer(request);
   }
 
   @override
   Future<void> stopVisualizer(StopVisualizerRequest request) async{
-    await (await _player).stopVisualizer();
+    await (await _player).stopVisualizer(request);
   }
   
   void _updatePosition() {
