@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:just_audio/just_audio.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -161,8 +160,6 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
   final InitRequest initRequest;
   final eventController = StreamController<PlaybackEventMessage>.broadcast();
   final playerDataController = StreamController<PlayerDataMessage>.broadcast();
-  final waveController = StreamController<VisualizerWaveformCaptureMessage>.broadcast();
-  final ftfController = StreamController<VisualizerFftCaptureMessage>.broadcast();
   bool? _playing;
   IcyMetadataMessage? _icyMetadata;
   int? _androidAudioSessionId;
@@ -236,14 +233,6 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
       playerDataController.stream;
 
   @override
-  Stream<VisualizerWaveformCaptureMessage> get visualizerWaveformStream => 
-      waveController.stream;
-
-  @override
-  Stream<VisualizerFftCaptureMessage> get visualizerFftStream =>
-      ftfController.stream;
-
-  @override
   Future<LoadResponse> load(LoadRequest request) =>
       _playerAudioHandler.customLoad(request);
 
@@ -258,7 +247,7 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
     await _audioHandler.pause();
     return PauseResponse();
   }
-  
+
   @override
   Future<SetVolumeResponse> setVolume(SetVolumeRequest request) =>
       _playerAudioHandler.customSetVolume(request);
@@ -301,13 +290,6 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
   Future<SetShuffleOrderResponse> setShuffleOrder(
           SetShuffleOrderRequest request) =>
       _playerAudioHandler.customSetShuffleOrder(request);
-
-  @override
-  Future<SetWebCrossOriginResponse> setWebCrossOrigin(
-      SetWebCrossOriginRequest request) async {
-    _playerAudioHandler.customSetWebCrossOrigin(request);
-    return SetWebCrossOriginResponse();
-  }
 
   @override
   Future<SeekResponse> seek(SeekRequest request) =>
@@ -368,16 +350,6 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
       _playerAudioHandler.customSetAllowsExternalPlayback(request);
 
   @override
-  Future<StartVisualizerResponse> startVisualizer(
-      StartVisualizerRequest request) =>
-        _playerAudioHandler.customStartVisualizer(request);
-
-  @override
-  Future<StopVisualizerResponse> stopVisualizer(StopVisualizerRequest request) {
-    throw UnimplementedError("stopVisualizer() has not been implemented.");
-  }
-  
-  @override
   Future<SetCanUseNetworkResourcesForLiveStreamingWhilePausedResponse>
       setCanUseNetworkResourcesForLiveStreamingWhilePaused(
               SetCanUseNetworkResourcesForLiveStreamingWhilePausedRequest
@@ -390,6 +362,24 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
   Future<SetPreferredPeakBitRateResponse> setPreferredPeakBitRate(
           SetPreferredPeakBitRateRequest request) =>
       _playerAudioHandler.customSetPreferredPeakBitRate(request);
+
+  @override
+  Future<StartVisualizerResponse> startVisualizer(
+      StartVisualizerRequest request) =>
+        _playerAudioHandler.customStartVisualizer(request);
+
+  @override
+  Future<StopVisualizerResponse> stopVisualizer(StopVisualizerRequest request) {
+    throw UnimplementedError("stopVisualizer() has not been implemented.");
+  }
+
+  @override
+  Stream<VisualizerWaveformCaptureMessage> get visualizerWaveformStream =>
+    _playerAudioHandler.customVisualizerWaveformStream;
+
+  @override
+  Stream<VisualizerFftCaptureMessage> get visualizerFftStream =>
+    _playerAudioHandler.customVisualizerFftStream;
 }
 
 class _PlayerAudioHandler extends BaseAudioHandler
@@ -415,6 +405,12 @@ class _PlayerAudioHandler extends BaseAudioHandler
   List<int> _shuffleIndicesInv = [];
   List<int> _effectiveIndices = [];
   List<int> _effectiveIndicesInv = [];
+
+  final StreamController<VisualizerWaveformCaptureMessage> _visualizerWaveformStreamController = StreamController<VisualizerWaveformCaptureMessage>();
+  Stream<VisualizerWaveformCaptureMessage> get customVisualizerWaveformStream => _visualizerWaveformStreamController.stream;
+
+  final StreamController<VisualizerFftCaptureMessage> _visualizerFftStreamController = StreamController<VisualizerFftCaptureMessage>();
+  Stream<VisualizerFftCaptureMessage> get customVisualizerFftStream => _visualizerFftStreamController.stream;
 
   Future<AudioPlayerPlatform> get _player => _playerCompleter.future;
   int? get index => _justAudioEvent.currentIndex;
@@ -484,9 +480,16 @@ class _PlayerAudioHandler extends BaseAudioHandler
             mediaItem.add(currentMediaItem!);
           }
         });
+
+    player.visualizerWaveformStream.listen((event) {
+      _visualizerWaveformStreamController.add(event);
+    });
+
+    player.visualizerFftStream.listen((event) {
+      _visualizerFftStreamController.add(event);
+    });
   }
 
-  
   @override
   Future<void> updateQueue(List<MediaItem> queue) async {
     this.queue.add(queue);
@@ -534,11 +537,6 @@ class _PlayerAudioHandler extends BaseAudioHandler
     return await (await _player).setShuffleOrder(SetShuffleOrderRequest(
       audioSourceMessage: _source!,
     ));
-  }
-
-  Future<SetWebCrossOriginResponse> customSetWebCrossOrigin(
-      SetWebCrossOriginRequest request) async {
-    return await (await _player).setWebCrossOrigin(request);
   }
 
   Future<ConcatenatingInsertAllResponse> customConcatenatingInsertAll(
@@ -622,10 +620,8 @@ class _PlayerAudioHandler extends BaseAudioHandler
   Future<StopVisualizerResponse> customStopVisualizer(
       StopVisualizerRequest request) async =>
         await (await _player).stopVisualizer(request);
-  
+
   void _updateQueue() {
-    assert(sequence.every((source) => source.tag is MediaItem),
-        'Error : When using just_audio_background, you should always use a MediaItem as tag when setting an AudioSource. See AudioSource.uri documentation for more information.');
     queue.add(sequence.map((source) => source.tag as MediaItem).toList());
   }
 
@@ -704,7 +700,7 @@ class _PlayerAudioHandler extends BaseAudioHandler
     _broadcastState();
     await (await _player).pause(PauseRequest());
   }
-  
+
   void _updatePosition() {
     _justAudioEvent = _justAudioEvent.copyWith(
       updatePosition: currentPosition,
