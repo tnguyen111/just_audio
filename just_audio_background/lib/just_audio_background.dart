@@ -371,8 +371,9 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
         _playerAudioHandler.customStartVisualizer(request);
 
   @override
-  Future<StopVisualizerResponse> stopVisualizer(StopVisualizerRequest request) {
-    throw UnimplementedError("stopVisualizer() has not been implemented.");
+  Future<StopVisualizerResponse> stopVisualizer(
+      StopVisualizerRequest request) =>
+        _playerAudioHandler.customStopVisualizer(request);
   }
 
   @override
