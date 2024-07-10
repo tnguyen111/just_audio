@@ -261,12 +261,14 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
 
   @override
   Future<StartVisualizerResponse> startVisualizer(StartVisualizerRequest request) async {
-    return await _playerAudioHandler.startVisualizer(request);
+    await _playerAudioHandler.startVisualizer(request);
+    return StartVisualizerResponse();
   }
 
   @override
   Future<StopVisualizerResponse> stopVisualizer(StopVisualizerRequest request) async {
-   return await _playerAudioHandler.stopVisualizer(request);
+    await _playerAudioHandler.stopVisualizer(request);
+    return StopVisualizerResponse();
   }
   
   @override
