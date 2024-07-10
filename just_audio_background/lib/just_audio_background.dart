@@ -9,6 +9,8 @@ import 'package:rxdart/rxdart.dart';
 
 export 'package:audio_service/audio_service.dart' show MediaItem;
 
+/// credit: https://github.com/useronym/just_audio/tree/e2d2fe71c1a6c6bae5631a6c993f08fc8b085050/just_audio_background
+
 late SwitchAudioHandler _audioHandler;
 late JustAudioPlatform _platform;
 
