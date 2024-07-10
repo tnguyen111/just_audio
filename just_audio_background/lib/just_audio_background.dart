@@ -374,7 +374,7 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
   Future<StopVisualizerResponse> stopVisualizer(
       StopVisualizerRequest request) =>
         _playerAudioHandler.customStopVisualizer(request);
-  }
+  
 
   @override
   Stream<VisualizerWaveformCaptureMessage> get visualizerWaveformStream =>
