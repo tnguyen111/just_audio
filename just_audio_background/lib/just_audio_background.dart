@@ -368,6 +368,16 @@ class _JustAudioPlayer extends AudioPlayerPlatform {
       _playerAudioHandler.customSetAllowsExternalPlayback(request);
 
   @override
+  Future<StartVisualizerResponse> startVisualizer(
+      StartVisualizerRequest request) =>
+        _playerAudioHandler.customStartVisualizer(request);
+
+  @override
+  Future<StopVisualizerResponse> stopVisualizer(StopVisualizerRequest request) {
+    throw UnimplementedError("stopVisualizer() has not been implemented.");
+  }
+  
+  @override
   Future<SetCanUseNetworkResourcesForLiveStreamingWhilePausedResponse>
       setCanUseNetworkResourcesForLiveStreamingWhilePaused(
               SetCanUseNetworkResourcesForLiveStreamingWhilePausedRequest
@@ -476,6 +486,14 @@ class _PlayerAudioHandler extends BaseAudioHandler
         });
   }
 
+      player.visualizerWaveformStream.listen((event) {
+      _visualizerWaveformStreamController.add(event);
+    });
+
+    player.visualizerFftStream.listen((event) {
+      _visualizerFftStreamController.add(event);
+    });
+  
   @override
   Future<void> updateQueue(List<MediaItem> queue) async {
     this.queue.add(queue);
@@ -604,6 +622,14 @@ class _PlayerAudioHandler extends BaseAudioHandler
           SetPreferredPeakBitRateRequest request) async =>
       await (await _player).setPreferredPeakBitRate(request);
 
+  Future<StartVisualizerResponse> customStartVisualizer(
+      StartVisualizerRequest request) async =>
+        await (await _player).startVisualizer(request);
+
+  Future<StopVisualizerResponse> customStopVisualizer(
+      StopVisualizerRequest request) async =>
+        await (await _player).stopVisualizer(request);
+  
   void _updateQueue() {
     assert(sequence.every((source) => source.tag is MediaItem),
         'Error : When using just_audio_background, you should always use a MediaItem as tag when setting an AudioSource. See AudioSource.uri documentation for more information.');
